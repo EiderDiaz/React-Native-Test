@@ -5,10 +5,10 @@ import { StyleSheet,
       Alert,
        ListView,
        TouchableOpacity,
-      
+
    } from 'react-native';
 import ArtistBox from './ArtistBox'
-//import {Actions} from 'react-native-router-flux';
+import {Actions} from 'react-native-router-flux';
 
 export default class ArtistList extends React.Component {
 
@@ -39,6 +39,8 @@ updateDataSource = (data) => {
 }
 //este es el onclicklistener
 handlePress(artist){
+  //cuando recibo props en la siguiente pantalla no se manda el elemento puro
+  //osea (artist) se manda  {artist:artist}
   Actions.artistDetail({artist: artist})
 }
 render() {
