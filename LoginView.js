@@ -20,26 +20,38 @@ var config = {
   messagingSenderId: "285985287046"
 };
 firebase.initializeApp(config);
+const {FacebookAuthProvider} = firebase.auth
+const firebaseAuth = firebase.auth()
+//const provider = new firebase.auth.FacebookAuthProvider();
 
 export default class LoginView extends React.Component {
-authenticaUser(accesTokten){
-  auth.signInWithCredential(credential).then(function(user) {
-  console.log("Sign In Success", user);
-  var currentUser = user;
-  // Merge prevUser and currentUser data stored in Firebase.
-  // Note: How you handle this is specific to your application
 
-  // After data is migrated delete the duplicate user
-  return user.delete().then(function() {
-    // Link the OAuth Credential to original account
-    return prevUser.link(credential);
-  }).then(function() {
-    // Sign in with the newly linked credential
-    return auth.signInWithCredential(credential);
-  });
+authenticaUser(accesToken){
+  const credential = FacebookAuthProvider.credential(accesToken)
+ firebaseAuth.signInAndRetrieveDataWithCredential(credential)
+  .then(function(user) {
+  console.warn("Sign In Success", user);
 }).catch(function(error) {
-  console.log("Sign In Error", error);
+  console.warn("Sign In Error", error);
 });
+
+}
+
+handleLoginFinished = (error, result) => {
+  if (error) {
+    console.error("login has error: " + result.error);
+  }
+  else if (result.isCancelled) {
+    console.error("login is cancelled.");
+  }
+  else {
+    AccessToken.getCurrentAccessToken().then((data) => {
+      this.authenticaUser(data.accessToken.toString())
+
+
+      //Actions.home()
+        })
+  }
 }
   render() {
     return (
@@ -48,19 +60,7 @@ authenticaUser(accesTokten){
         <Text style={styles.welcome} >Welcome to the Juungle</Text>
         <LoginButton
          readPermissions={['public_profile','email']}
-         onLoginFinished={
-                (error, result) => {
-                  if (error) {
-                    console.error("login has error: " + result.error);
-                  }
-                  else if (result.isCancelled) {
-                    console.error("login is cancelled.");
-                  }
-                  else {
-                    AccessToken.getCurrentAccessToken()
-                    .then(() => {Actions.home()})
-                  }
-              }}
+         onLoginFinished= {this.handleLoginFinished }
          onLogoutFinished={() => alert("logout.")}/>
     </View>
   );
