@@ -24,13 +24,32 @@ const {FacebookAuthProvider} = firebase.auth
 const firebaseAuth = firebase.auth()
 //const provider = new firebase.auth.FacebookAuthProvider();
 
+
 export default class LoginView extends React.Component {
 
-authenticaUser(accesToken){
+  constructor(props){
+     super(props);
+
+     this.state = {
+       credentials : "Hello World"
+     }
+  }
+  componentWillMount(){
+    AccessToken.getCurrentAccessToken()
+    .then((data) => {
+      this.authenticaUser(data.accessToken.toString())
+      console.warn("si que si", this.state.credentials)
+
+        })
+
+  }
+
+authenticaUser = (accesToken) => {
   const credential = FacebookAuthProvider.credential(accesToken)
  firebaseAuth.signInAndRetrieveDataWithCredential(credential)
-  .then(function(user) {
-  console.warn("Sign In Success", user);
+ .then((credentials) => {
+   this.setState({ credentials: credentials })
+  console.warn("Sign In Success", credentials.displayName);
 }).catch(function(error) {
   console.warn("Sign In Error", error);
 });
@@ -48,7 +67,6 @@ handleLoginFinished = (error, result) => {
     AccessToken.getCurrentAccessToken().then((data) => {
       this.authenticaUser(data.accessToken.toString())
 
-
       //Actions.home()
         })
   }
@@ -58,6 +76,7 @@ handleLoginFinished = (error, result) => {
 
       <View style={styles.container}>
         <Text style={styles.welcome} >Welcome to the Juungle</Text>
+          <Text style={styles.welcome}>{this.state.credentials && this.state.credentials.displayName}</Text>
         <LoginButton
          readPermissions={['public_profile','email']}
          onLoginFinished= {this.handleLoginFinished }
